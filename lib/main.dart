@@ -45,66 +45,80 @@ class _InicioState extends State<Inicio>{
 
   @override
   Widget build(BuildContext context){
+    _InicioState con = _InicioState();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
         actions: <Widget>[
-          IconButton(onPressed: (){}, icon: Icon(Icons.android_rounded))
+          IconButton(onPressed: (){}, icon: const Icon(Icons.android_rounded))
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            //width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(0.0),
-            child: Image.network("https://preview.redd.it/q258o72ldq461.png?auto=webp&s=379018fc1ac6e77b566316bdce50d7bde723df1f",
-              width: MediaQuery.of(context).size.shortestSide,
-              height: MediaQuery.of(context).size.shortestSide ,
-              fit: BoxFit.fitWidth
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(20.0),
-            color: Colors.amber,
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  '$_contador', style: Theme.of(context).textTheme.headline4,
-                  textAlign: TextAlign.center,
-                )
-              ],
-            ),
-          ),
-          Container(
-           padding: const EdgeInsets.all(20.0),
-           color: Colors.amberAccent,
-           alignment: Alignment.center,
-           child: Row(
-               mainAxisAlignment: MainAxisAlignment.spaceAround,
-               mainAxisSize: MainAxisSize.max,
-               children: <Widget>[
-                 ElevatedButton(onPressed: _incrementarContador, child: const Icon(Icons.arrow_circle_up)),
-                 ElevatedButton(onPressed: _decrementarContador, child: const Icon(Icons.arrow_circle_down)),
-                 ElevatedButton(onPressed: _reiniciarContador, child: const Icon(Icons.restart_alt_rounded))
-               ]
-           ),
-          )
-        ],
-      )
+      body: Cuerpo()
     );
   }
-}
 
-Widget cuerpo(){
-  return Container(
-    decoration: BoxDecoration(
-      image: DecorationImage(image: NetworkImage("https://preview.redd.it/q258o72ldq461.png?auto=webp&s=379018fc1ac6e77b566316bdce50d7bde723df1f"))
-    ),
-  );
+  Widget Cuerpo(){
+    return Container(
+      decoration: const BoxDecoration(
+          image: DecorationImage(image: NetworkImage("https://preview.redd.it/q258o72ldq461.png?auto=webp&s=379018fc1ac6e77b566316bdce50d7bde723df1f"),
+              fit: BoxFit.cover
+          )
+      ),
+      child: Center(
+        child: Column(
+          //mainAxisAlignment: MainAxisAlignment.center,
+          //mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Container(
+              height: 220,
+              padding: const EdgeInsets.all(10.0),
+              color: Colors.black,
+              child: CountOut(),
+            ),
+            Container(
+              //alignment: Alignment.bottomCenter,
+              //height: 150,
+              //color: Colors.blueAccent,
+              child: CraneButtons(),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget CountOut(){
+    return Row(
+      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Text(
+           'Bluetooth@Crane > $_contador', style: const TextStyle(color: Colors.green, fontFamily: 'Inconsolata' , fontSize: 16, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.left,
+        )
+      ],
+    );
+  }
+
+  Widget CraneButtons(){
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          ElevatedButton(onPressed: ()=>{
+            print("UP"),
+            _incrementarContador()
+          }, child: const Icon(Icons.arrow_circle_up)),
+          ElevatedButton(onPressed: ()=>{
+            print("DOWN"),
+            _decrementarContador()
+          }, child: const Icon(Icons.arrow_circle_down)),
+          ElevatedButton(onPressed: ()=>{
+            print("RESET"),
+            _reiniciarContador()
+          }, child: const Icon(Icons.restart_alt_rounded))
+        ]
+    );
+  }
 }
