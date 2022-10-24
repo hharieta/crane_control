@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -47,10 +45,22 @@ class _InicioState extends State<Inicio>{
   late int _deviceState;
   // some variables
   List<BluetoothDevice> _devicesList = [];
-  late BluetoothDevice _device;
+  BluetoothDevice? _device;
   bool _connected = false;
   bool _isButtonUnavailable = false;
   bool isDisconnecting = false;
+
+  // gradient color
+  final Shader linearGradient = const LinearGradient(
+    begin: Alignment.topRight, end: Alignment.bottomLeft,
+      colors: <Color>[
+        Colors.red, Colors.orange, Colors.orangeAccent, Colors.greenAccent,
+        Colors.green, Colors.lightBlueAccent, Colors.indigoAccent,
+        Colors.indigo, Colors.purple
+      ],
+  ).createShader(
+      const Rect.fromLTWH(0.0, 0.0, 100.0, 70.0)
+  );
 
   @override
   void initState(){
@@ -88,7 +98,7 @@ class _InicioState extends State<Inicio>{
     if (isConnected){
       isDisconnecting = true;
       connection?.dispose();
-      connection = null;  // BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+      connection = null;
     }
 
     super.dispose();
@@ -112,13 +122,13 @@ class _InicioState extends State<Inicio>{
 
   // force retrieveing and storing the paired devices
   Future<void> getPairedDevices() async {
-    List<BluetoothState> devices = [];
+    List<BluetoothDevice> devices = [];
 
     // get the list of paired devices
     try {
-      devices = (await _bluetooth.getBondedDevices()).cast<BluetoothState>();
+      devices = await _bluetooth.getBondedDevices();
     } on PlatformException {
-      print("Error");
+      show("@Error. No bluetooth devices");
     }
 
     // error to call setState unless mounted is true
@@ -127,14 +137,13 @@ class _InicioState extends State<Inicio>{
     }
 
     setState(() {
-      _devicesList = devices.cast<BluetoothDevice>();
+      _devicesList = devices;
     });
 
   }
 
   @override
   Widget build(BuildContext context){
-    _InicioState con = _InicioState();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -160,16 +169,21 @@ class _InicioState extends State<Inicio>{
           ),
         ],
       ),
-      body: Cuerpo()
+      body: body4Scaffold()
     );
   }
 
-  Widget Cuerpo(){
+  Widget body4Scaffold(){
     return Container(
       decoration: const BoxDecoration(
-          image: DecorationImage(image: NetworkImage("https://preview.redd.it/q258o72ldq461.png?auto=webp&s=379018fc1ac6e77b566316bdce50d7bde723df1f"),
-              fit: BoxFit.cover
-          )
+          gradient: LinearGradient(
+            begin: Alignment.topRight, end: Alignment.bottomLeft,
+            colors: <Color>[
+              Colors.red, Colors.orange, Colors.orangeAccent, Colors.greenAccent,
+              Colors.green, Colors.lightBlueAccent, Colors.indigoAccent,
+              Colors.indigo, Colors.purple
+            ],
+          ),
       ),
       child: Center(
         child: Column(
@@ -177,19 +191,25 @@ class _InicioState extends State<Inicio>{
           //mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Container(
-              child: SwitchRow(),
+              child: switchEnableDisable(),
             ),
             Container(
+              child: pairedDevices(),
+            ),
+            /*Container(
               height: 220,
               padding: const EdgeInsets.all(10.0),
               color: Colors.black,
               child: CountOut(),
-            ),
+            ),*/
             Container(
               //alignment: Alignment.bottomCenter,
               //height: 150,
               //color: Colors.blueAccent,
               child: CraneButtons(),
+            ),
+            Container(
+              child: openSettings(),
             )
           ],
         ),
@@ -197,15 +217,15 @@ class _InicioState extends State<Inicio>{
     );
   }
 
-  Widget SwitchRow(){
+  Widget switchEnableDisable(){
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         Visibility(
             visible: _isButtonUnavailable && _bluetoothState == BluetoothState.STATE_BLE_ON,
             child: const LinearProgressIndicator(
-              backgroundColor: Colors.green,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              backgroundColor: Colors.yellow,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
             )),
         Padding(
           padding: const EdgeInsets.all(10),
@@ -215,7 +235,7 @@ class _InicioState extends State<Inicio>{
               const Expanded(
                 child: Text('Enable Bluetooth',
                 style: TextStyle(color: Colors.black,
-                fontSize: 16,
+                fontSize: 16, fontWeight: FontWeight.bold
                 ),
               ),
               ),
@@ -236,7 +256,7 @@ class _InicioState extends State<Inicio>{
                       _isButtonUnavailable = false;
 
                       if(_connected){
-                        //_disconnect(); ////CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+                        _disconnect();
                       }
                     }
 
@@ -251,22 +271,98 @@ class _InicioState extends State<Inicio>{
     );
   }
 
-  Widget dropDown(){
+  Widget pairedDevices(){
     return Stack(
-
+      children: <Widget>[
+        Column(
+          children: <Widget>[
+            const Text('PAIRED DEVICES',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  //foreground: Paint() ..shader = linearGradient
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            Padding(padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('Device',
+                    style: TextStyle(fontWeight: FontWeight.bold
+                    ),
+                  ),
+                  DropdownButton(items: _getDeviceItems(),
+                      onChanged: (value) => setState(() => _device = value), // HHHHHHHHHHHHHHHHH
+                    value: _devicesList.isNotEmpty ? _device : null,
+                  ),
+                  ElevatedButton(onPressed: _isButtonUnavailable ? null
+                      : _connected ? _disconnect : _connect,
+                      child: Text(_connected ? 'Disconnect' : 'Connect'),
+                  )
+                ],
+              ),
+            ),
+            Padding(padding: const EdgeInsets.all(16.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: _deviceState == 0 ? Colors.red : _deviceState == 1
+                        ? Colors.orangeAccent : Colors.transparent,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                elevation: _deviceState == 0 ? 4: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(child: Text("DEVICE 1", style: TextStyle(
+                        fontSize: 20, color: _deviceState == 0 ? Colors.red :
+                          _deviceState == 1 ? Colors.orangeAccent : Colors.black
+                      ),))
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
-  Widget CountOut(){
-    return Row(
-      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      children: const <Widget>[
-        Text(
-           'Bluetooth@Crane > _contador', style: TextStyle(color: Colors.green, fontFamily: 'Inconsolata' , fontSize: 16, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.left,
-        )
-      ],
+  Widget openSettings(){
+    return Padding(padding: const EdgeInsets.all(20),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text("",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            TextButton.icon(onPressed: () {
+              FlutterBluetoothSerial.instance.openSettings();
+              },
+              icon: const Icon(Icons.warning_rounded, color: Colors.red),
+              label: const Text('Bluetooth Settings', style:
+                TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -277,19 +373,113 @@ class _InicioState extends State<Inicio>{
         children: <Widget>[
           ElevatedButton(onPressed: ()=>{
             print("UP"),
-            //_incrementarContador()
           }, child: const Icon(Icons.arrow_circle_up)),
           ElevatedButton(onPressed: ()=>{
             print("DOWN"),
-            //_decrementarContador()
           }, child: const Icon(Icons.arrow_circle_down)),
           ElevatedButton(onPressed: ()=>{
             print("RESET"),
-            //_reiniciarContador()
           }, child: const Icon(Icons.restart_alt_rounded))
         ]
     );
   }
+
+  // Method to list devices bluetooth to shown in Dropdown Menu
+  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems(){
+    List<DropdownMenuItem<BluetoothDevice>> items = [];
+
+    if (_devicesList.isEmpty){
+      items.add(const DropdownMenuItem(child: Text('NONE'),
+      ));
+    } else {
+      for (var device in _devicesList) {
+        items.add(DropdownMenuItem(value: device,child: Text('$device.name'),
+        ));
+      }
+    }
+
+    return items;
+  }
+
+  // Method to connect to bluetooth
+  void _connect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+    });
+
+    if (_device == null) {
+      show('No device selected');
+    } else {
+      if (!isConnected){
+        await BluetoothConnection.toAddress(_device?.address).then((conn) {
+          show('Connected to the device');
+          connection = conn;
+
+          setState(() {
+            _connected = true;
+          });
+
+          connection?.input?.listen(null).onDone(() {
+            if (isDisconnecting){
+              show('Disconnecting locally!');
+            } else {
+              show('Disconnectig remotely!');
+            }
+            if (mounted){
+              setState(() {});
+            }
+
+          });
+
+        }).catchError((error){
+          show('Cannot connect, exception ocurred: $error');
+        });
+
+        show('Device connected');
+
+        setState(() {
+          _isButtonUnavailable = false;
+        });
+      }
+    }
+  }
+
+  // Method to disconnect to bluetooth
+  void _disconnect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+      _deviceState = 0;
+    });
+
+    await connection?.close();
+    show('Device Disconnected');
+    // operator ! is a null check target
+    if(!connection!.isConnected){
+      setState(() {
+        _connected = false;
+        _isButtonUnavailable = false;
+      });
+    }
+  }
+
+
+  // Method to show a Snackbar,
+  // taking message as the text
+  Future show(
+      String message, {
+        Duration duration = const Duration(seconds: 3),
+      }) async {
+    //await Future.delayed(const Duration(milliseconds: 100));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+        ),
+        duration: duration,
+      ),
+    );
+  }
+
 
   /*end Class _InicioState*/
 }
