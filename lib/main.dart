@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -162,9 +163,13 @@ class _InicioState extends State<Inicio>{
               ))
             });
           },
-            icon: const Icon(Icons.refresh),
-            label: const Text("Refresh",
-              style: TextStyle(color: Colors.white, fontSize: 16),
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            label: const Text('Refresh', style:
+            TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16
+            ),
             ),
           ),
         ],
@@ -176,14 +181,13 @@ class _InicioState extends State<Inicio>{
   Widget body4Scaffold(){
     return Container(
       decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight, end: Alignment.bottomLeft,
+          /*gradient: LinearGradient(
+            begin: Alignment.bottomLeft, end: Alignment.topRight,
             colors: <Color>[
-              Colors.red, Colors.orange, Colors.orangeAccent, Colors.greenAccent,
-              Colors.green, Colors.lightBlueAccent, Colors.indigoAccent,
-              Colors.indigo, Colors.purple
+              Colors.blue, Colors.lightBlueAccent
             ],
-          ),
+          ),*/
+        image: DecorationImage(image: AssetImage("assets/images/w1.png"))
       ),
       child: Center(
         child: Column(
@@ -194,7 +198,7 @@ class _InicioState extends State<Inicio>{
               child: switchEnableDisable(),
             ),
             Container(
-              child: pairedDevices(),
+              child: stackDevicesShow(),
             ),
             /*Container(
               height: 220,
@@ -271,7 +275,7 @@ class _InicioState extends State<Inicio>{
     );
   }
 
-  Widget pairedDevices(){
+  Widget stackDevicesShow(){
     return Stack(
       children: <Widget>[
         Column(
@@ -288,11 +292,12 @@ class _InicioState extends State<Inicio>{
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   const Text('Device',
-                    style: TextStyle(fontWeight: FontWeight.bold
+                    style: TextStyle(fontWeight: FontWeight.bold,
+                      fontSize: 16
                     ),
                   ),
                   DropdownButton(items: _getDeviceItems(),
-                      onChanged: (value) => setState(() => _device = value), // HHHHHHHHHHHHHHHHH
+                      onChanged: (value) => setState(() => _device = value),
                     value: _devicesList.isNotEmpty ? _device : null,
                   ),
                   ElevatedButton(onPressed: _isButtonUnavailable ? null
@@ -318,7 +323,7 @@ class _InicioState extends State<Inicio>{
                   child: Row(
                     children: <Widget>[
                       Expanded(child: Text("DEVICE 1", style: TextStyle(
-                        fontSize: 20, color: _deviceState == 0 ? Colors.red :
+                        fontSize: 20, fontWeight: FontWeight.w500, color: _deviceState == 0 ? Colors.blueGrey :
                           _deviceState == 1 ? Colors.orangeAccent : Colors.black
                       ),))
                     ],
@@ -351,10 +356,10 @@ class _InicioState extends State<Inicio>{
             TextButton.icon(onPressed: () {
               FlutterBluetoothSerial.instance.openSettings();
               },
-              icon: const Icon(Icons.warning_rounded, color: Colors.red),
+              icon: const Icon(Icons.warning_rounded, color: Colors.blueGrey),
               label: const Text('Bluetooth Settings', style:
                 TextStyle(
-                  color: Colors.red,
+                  color: Colors.blueGrey,
                   fontWeight: FontWeight.bold,
                   fontSize: 16
                 ),
