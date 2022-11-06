@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -32,7 +31,7 @@ class _InicioState extends State<Inicio> {
   // init bluetooth state is unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   // Initializing a global key, as it would help us in showing a SnackBar later
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  //final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   // get the instance of the bluetooth
   FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   // track the bluetooth connection with the remote device
@@ -194,14 +193,12 @@ class _InicioState extends State<Inicio> {
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,
           colors: <Color>[
-            Colors.red,
             Colors.orange,
             Colors.orangeAccent,
             Colors.greenAccent,
             Colors.green,
             Colors.lightBlueAccent,
             Colors.indigoAccent,
-            Colors.indigo,
           ],
         ),
         image: DecorationImage(
@@ -210,25 +207,32 @@ class _InicioState extends State<Inicio> {
       ),
       child: Center(
         child: Column(
-          //mainAxisAlignment: MainAxisAlignment.center,
-          //mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Container(
+              margin: const EdgeInsets.only(bottom: 20),
               child: switchEnableDisable(),
             ),
             Container(
+              margin: const EdgeInsets.only(bottom: 20),
               child: stackDevicesShow(),
             ),
-            /*Container(
-              height: 220,
-              padding: const EdgeInsets.all(10.0),
-              color: Colors.black,
-              child: CountOut(),
-            ),*/
             Container(
-              //alignment: Alignment.bottomCenter,
-              //height: 150,
-              //color: Colors.blueAccent,
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(25),
+              height: 200.0,
+              width: 400.0,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 5,
+                    spreadRadius: 5,
+                    offset: Offset(2.0, 2.0),
+                  ),
+                ],
+              ),
               child: craneButtons(),
             ),
             Container(
@@ -245,7 +249,7 @@ class _InicioState extends State<Inicio> {
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -342,14 +346,16 @@ class _InicioState extends State<Inicio> {
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                elevation: _deviceState == 0 ? 4 : 0,
+                elevation: _deviceState == 0 ? 0 : 8,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: <Widget>[
                       Expanded(
                           child: Text(
-                        _devicesList[0].name.toString(),
+                        _connected
+                            ? _devicesList[0].name.toString()
+                            : "NOT DIVICE CONECTED",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 20,
@@ -408,26 +414,122 @@ class _InicioState extends State<Inicio> {
   }
 
   Widget craneButtons() {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        mainAxisSize: MainAxisSize.max,
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          ElevatedButton(
-              onPressed: () => {
-                    print("UP"),
-                  },
-              child: const Icon(Icons.arrow_circle_up)),
-          ElevatedButton(
-              onPressed: () => {
-                    print("DOWN"),
-                  },
-              child: const Icon(Icons.arrow_circle_down)),
-          ElevatedButton(
-              onPressed: () => {
-                    print("RESET"),
-                  },
-              child: const Icon(Icons.restart_alt_rounded))
-        ]);
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(children: const <Widget>[
+                TextButton(onPressed: null, child: Text(""))
+              ]),
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () => {
+                      _connected ? _sendBackwardMessage2Bluetooth() : null,
+                      print("izquierda")
+                    },
+                    child: const Icon(Icons.arrow_back_rounded),
+                  ),
+                ],
+              ),
+              Row(
+                children: const <Widget>[
+                  TextButton(onPressed: null, child: Text(""))
+                ],
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {
+                            _connected ? _sendForwardMessage2Bluetooth() : null,
+                            print("arriba")
+                          },
+                      child: const Icon(Icons.arrow_upward_rounded))
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {
+                            _connected ? _sendStopMessage2Bluetooth() : null,
+                            print("detener")
+                          },
+                      child: const Icon(Icons.stop_circle_sharp))
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {
+                            _connected
+                                ? _sendBackwardMessage2Bluetooth()
+                                : null,
+                            print("abajo")
+                          },
+                      child: const Icon(Icons.arrow_downward_rounded))
+                ],
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(children: const <Widget>[
+                TextButton(onPressed: null, child: Text(""))
+              ]),
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {
+                            _connected ? _sendForwardMessage2Bluetooth() : null,
+                            print("derecha")
+                          },
+                      child: const Icon(Icons.arrow_forward_rounded))
+                ],
+              ),
+              Row(children: const <Widget>[
+                TextButton(onPressed: null, child: Text(""))
+              ]),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {
+                            _connected ? _sendForwardMessage2Bluetooth() : null,
+                            print("subir")
+                          },
+                      child: const Icon(Icons.file_upload_rounded))
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {
+                            _connected
+                                ? _sendBackwardMessage2Bluetooth()
+                                : null,
+                            print("bajar")
+                          },
+                      child: const Icon(Icons.file_download_rounded))
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   // Method to list devices bluetooth to shown in Dropdown Menu
@@ -514,6 +616,21 @@ class _InicioState extends State<Inicio> {
         _isButtonUnavailable = false;
       });
     }
+  }
+
+  void _sendForwardMessage2Bluetooth() async {
+    connection?.output.add(Uint8List.fromList(utf8.encode("1" + "\r\n")));
+    await connection?.output.allSent;
+  }
+
+  void _sendBackwardMessage2Bluetooth() async {
+    connection?.output.add(Uint8List.fromList(utf8.encode("2" + "\r\n")));
+    await connection?.output.allSent;
+  }
+
+  void _sendStopMessage2Bluetooth() async {
+    connection?.output.add(Uint8List.fromList(utf8.encode("0" + "\r\n")));
+    await connection?.output.allSent;
   }
 
   // Method to show a Snackbar,
