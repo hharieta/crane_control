@@ -428,7 +428,7 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () => {
-                      _connected ? _sendBackwardMessage2Bluetooth() : null,
+                      _connected ? _sendMessage2Bluetooth("4") : null,
                       print("izquierda")
                     },
                     child: const Icon(Icons.arrow_back_rounded),
@@ -449,8 +449,8 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                       onPressed: () => {
-                            _connected ? _sendForwardMessage2Bluetooth() : null,
-                            print("arriba")
+                            _connected ? _sendMessage2Bluetooth("1") : null,
+                            print("adelante")
                           },
                       child: const Icon(Icons.arrow_upward_rounded))
                 ],
@@ -459,7 +459,7 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                       onPressed: () => {
-                            _connected ? _sendStopMessage2Bluetooth() : null,
+                            _connected ? _sendMessage2Bluetooth("0") : null,
                             print("detener")
                           },
                       child: const Icon(Icons.stop_circle_sharp))
@@ -469,10 +469,8 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                       onPressed: () => {
-                            _connected
-                                ? _sendBackwardMessage2Bluetooth()
-                                : null,
-                            print("abajo")
+                            _connected ? _sendMessage2Bluetooth("2") : null,
+                            print("atrás")
                           },
                       child: const Icon(Icons.arrow_downward_rounded))
                 ],
@@ -489,7 +487,7 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                       onPressed: () => {
-                            _connected ? _sendForwardMessage2Bluetooth() : null,
+                            _connected ? _sendMessage2Bluetooth("3") : null,
                             print("derecha")
                           },
                       child: const Icon(Icons.arrow_forward_rounded))
@@ -507,8 +505,8 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                       onPressed: () => {
-                            _connected ? _sendForwardMessage2Bluetooth() : null,
-                            print("subir")
+                            _connected ? _sendMessage2Bluetooth("5") : null,
+                            print("arriba")
                           },
                       child: const Icon(Icons.file_upload_rounded))
                 ],
@@ -517,10 +515,8 @@ class _InicioState extends State<Inicio> {
                 children: <Widget>[
                   ElevatedButton(
                       onPressed: () => {
-                            _connected
-                                ? _sendBackwardMessage2Bluetooth()
-                                : null,
-                            print("bajar")
+                            _connected ? _sendMessage2Bluetooth("6") : null,
+                            print("abajo")
                           },
                       child: const Icon(Icons.file_download_rounded))
                 ],
@@ -618,20 +614,40 @@ class _InicioState extends State<Inicio> {
     }
   }
 
-  void _sendForwardMessage2Bluetooth() async {
-    connection?.output.add(Uint8List.fromList(utf8.encode("1" + "\r\n")));
+  void _sendMessage2Bluetooth(String value) async {
+    connection?.output.add(Uint8List.fromList(utf8.encode("$value\r\n")));
     await connection?.output.allSent;
   }
 
-  void _sendBackwardMessage2Bluetooth() async {
-    connection?.output.add(Uint8List.fromList(utf8.encode("2" + "\r\n")));
-    await connection?.output.allSent;
-  }
+  // void _sendBackwardMessage2Bluetooth() async {
+  //   connection?.output.add(Uint8List.fromList(utf8.encode("2" + "\r\n")));
+  //   await connection?.output.allSent;
+  // }
 
-  void _sendStopMessage2Bluetooth() async {
-    connection?.output.add(Uint8List.fromList(utf8.encode("0" + "\r\n")));
-    await connection?.output.allSent;
-  }
+  // void _send_LeftMessage2Bluetooth() async {
+  //   connection?.output.add(Uint8List.fromList(utf8.encode("3" + "\r\n")));
+  //   await connection?.output.allSent;
+  // }
+
+  // void _send_RightMessage2Bluetooth() async {
+  //   connection?.output.add(Uint8List.fromList(utf8.encode("4" + "\r\n")));
+  //   await connection?.output.allSent;
+  // }
+
+  // void _send_UpMessage2Bluetooth() async {
+  //   connection?.output.add(Uint8List.fromList(utf8.encode("5" + "\r\n")));
+  //   await connection?.output.allSent;
+  // }
+
+  // void _send_DownMessage2Bluetooth() async {
+  //   connection?.output.add(Uint8List.fromList(utf8.encode("6" + "\r\n")));
+  //   await connection?.output.allSent;
+  // }
+
+  // void _sendStopMessage2Bluetooth() async {
+  //   connection?.output.add(Uint8List.fromList(utf8.encode("0" + "\r\n")));
+  //   await connection?.output.allSent;
+  // }
 
   // Method to show a Snackbar,
   // taking message as the text
