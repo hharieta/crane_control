@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(const MiApp());
 
@@ -12,10 +13,10 @@ class MiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Grúa Arduino Conection",
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const Inicio(title: 'Control Grúa'),
-    ); // MaterialApp
+        title: "TuControl: Arduino Conection",
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const Inicio(title: 'TuControl'),
+        debugShowCheckedModeBanner: false); // MaterialApp
   }
 }
 
@@ -33,7 +34,7 @@ class _InicioState extends State<Inicio> {
   // Initializing a global key, as it would help us in showing a SnackBar later
   //final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   // get the instance of the bluetooth
-  FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
+  final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   // track the bluetooth connection with the remote device
   // nullable variable
   BluetoothConnection? connection;
@@ -42,7 +43,7 @@ class _InicioState extends State<Inicio> {
   bool get isConnected => connection != null && connection!.isConnected;
 
   // tracking the Bluetooth device connection state
-  late int _deviceState;
+  late int _deviceState = 0;
   // some variables
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice? _device;
@@ -70,32 +71,54 @@ class _InicioState extends State<Inicio> {
   @override
   void initState() {
     super.initState();
+    requestBluetoothPermission();
+  }
 
-    // get current state
-    FlutterBluetoothSerial.instance.state.then((state) {
-      setState(() {
-        _bluetoothState = state;
+  void requestBluetoothPermission() async {
+    PermissionStatus bluetoothStatus = await Permission.bluetoothScan.request();
+    PermissionStatus locationStatus = await Permission.location.request();
+    PermissionStatus bluetoothRequest = await Permission.bluetooth.request();
+    PermissionStatus bluetoothConnect =
+        await Permission.bluetoothConnect.request();
+
+    if (bluetoothStatus.isGranted &&
+        locationStatus.isGranted &&
+        bluetoothRequest.isGranted &&
+        bluetoothConnect.isGranted) {
+      blueSerial();
+    }
+  }
+
+  void blueSerial() {
+    try {
+      // get current state
+      FlutterBluetoothSerial.instance.state.then((state) {
+        setState(() {
+          _bluetoothState = state;
+        });
       });
-    });
 
-    _deviceState = 0;
-    enableBluetooth();
+      // _deviceState = 0;
+      enableBluetooth();
 
-    // listen for further state changes
-    FlutterBluetoothSerial.instance
-        .onStateChanged()
-        .listen((BluetoothState state) {
-      setState(() {
-        _bluetoothState = state;
-        if (_bluetoothState == BluetoothState.STATE_OFF) {
-          _isButtonUnavailable = true;
-        }
-        // for retrieving the paired devices list
-        getPairedDevices();
+      // listen for further state changes
+      FlutterBluetoothSerial.instance
+          .onStateChanged()
+          .listen((BluetoothState state) {
+        setState(() {
+          _bluetoothState = state;
+          if (_bluetoothState == BluetoothState.STATE_OFF) {
+            _isButtonUnavailable = true;
+          }
+          // for retrieving the paired devices list
+          getPairedDevices();
+        });
       });
-    });
 
-    /* end initState */
+      /* end initState */
+    } catch (e) {
+      print("Error during Bluetooth scanning: $e");
+    }
   }
 
   @override
@@ -202,7 +225,7 @@ class _InicioState extends State<Inicio> {
           ],
         ),
         image: DecorationImage(
-          image: AssetImage("assets/images/w1.png"),
+          image: AssetImage("assets/images/w3.jpeg"),
         ),
       ),
       child: Center(
@@ -421,7 +444,7 @@ class _InicioState extends State<Inicio> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Row(children: const <Widget>[
+              const Row(children: <Widget>[
                 TextButton(onPressed: null, child: Text(""))
               ]),
               Row(
@@ -435,8 +458,8 @@ class _InicioState extends State<Inicio> {
                   ),
                 ],
               ),
-              Row(
-                children: const <Widget>[
+              const Row(
+                children: <Widget>[
                   TextButton(onPressed: null, child: Text(""))
                 ],
               ),
@@ -480,7 +503,7 @@ class _InicioState extends State<Inicio> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Row(children: const <Widget>[
+              const Row(children: <Widget>[
                 TextButton(onPressed: null, child: Text(""))
               ]),
               Row(
@@ -493,7 +516,7 @@ class _InicioState extends State<Inicio> {
                       child: const Icon(Icons.arrow_forward_rounded))
                 ],
               ),
-              Row(children: const <Widget>[
+              const Row(children: <Widget>[
                 TextButton(onPressed: null, child: Text(""))
               ]),
             ],
