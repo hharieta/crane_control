@@ -1,16 +1,21 @@
-# hello_flutter
+# TuControl
 
-A new Flutter project.
+App to establish serial communication with arduino via bluetooth 2.0
 
-## Getting Started
+send numbers like string
 
-This project is a starting point for a Flutter application.
+0. stop
+1. forward
+2. backward
+3. right
+4. left
 
-A few resources to get you started if this is your first Flutter project:
+--- 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<figure>
+    <img src="assets/images/tucontrol.png"
+         alt="Albuquerque, New Mexico",
+         width="300" height="500">
+    <figcaption>TuControl</figcaption>
+</figure>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
